@@ -18,7 +18,10 @@ export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   return axios
     .get(`${url}/posts`)
     .then(await wait(3000))
-    .then((response) => response.data);
+    .then((response) => response.data)
+    .catch((error) => {
+      throw new Error("Unable to fetch posts from server" || error);
+    });
 });
 
 const postsSlice = createSlice({
@@ -36,6 +39,10 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.data = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.error = action.error.message;
         state.isLoading = false;
       });
   },
